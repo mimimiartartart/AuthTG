@@ -1,0 +1,10 @@
+name: AuthTGEM
+version: 'custom'
+main: org.ezhik.authtgem.AuthTGEM
+api-version: '1.20'
+Author: 'mimimiartartart'
+
+
+commands:
+  code:
+    description: 'Код потверждения'

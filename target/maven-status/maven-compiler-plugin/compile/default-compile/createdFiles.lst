@@ -1,0 +1,15 @@
+org\ezhik\authtgem\AuthTGEM$1.class
+org\ezhik\authtgem\BotTelegram.class
+org\ezhik\authtgem\events\FreezerEvent.class
+org\ezhik\authtgem\events\OnJoinEvent.class
+org\ezhik\authtgem\Handler.class
+org\ezhik\authtgem\AuthTGEM.class
+org\ezhik\authtgem\events\BlockCommandEvent.class
+org\ezhik\authtgem\IPManager.class
+org\ezhik\authtgem\events\BlockPlaceEvent.class
+org\ezhik\authtgem\User.class
+org\ezhik\authtgem\events\BlockDropItemEvent.class
+org\ezhik\authtgem\events\MuterEvent.class
+org\ezhik\authtgem\events\OnQuitEvent.class
+org\ezhik\authtgem\events\BlockBreakListener.class
+org\ezhik\authtgem\CodeCMD.class
