@@ -1,4 +1,5 @@
 org\ezhik\authtgem\AuthTGEM$1.class
+org\ezhik\authtgem\TimeUtils.class
 org\ezhik\authtgem\BotTelegram.class
 org\ezhik\authtgem\events\FreezerEvent.class
 org\ezhik\authtgem\events\OnJoinEvent.class

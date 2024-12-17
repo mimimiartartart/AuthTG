@@ -69,11 +69,36 @@ public class BotTelegram extends TelegramLongPollingBot {
         if (update.hasMessage()) {
             if (update.getMessage().getText().toString().startsWith("/")) {
                 if (update.getMessage().getText().toString().equals("/start")) {
-                    sendMessage(update.getMessage().getChatId(), "Добро пожаловать! Напишите /reg чтобы зарегистрировать аккаунт.");
+                    String message = "Добро пожаловать!\n";
+                    String chatId = update.getMessage().getChatId().toString();
+
+                    if (isUserRegistered(chatId)){
+                        String playername = getPlayerNameByChatId(chatId);
+                        Player player = getPlayerByName(playername);
+
+                        // Если игрок онлайн
+                        if (player != null && player.isOnline()) {
+                            String status = "Онлайн";
+                            sendMessage(update.getMessage().getChatId(), message + "Ваш никнейм: " + playername + "\n" + "Статус: " + status);
+                        } else {
+                            // Если игрок не онлайн, показываем время последней активности
+                            User user = User.getUser(playername);
+                            String lastActivity = user != null ? user.last_activity : null;
+                            String status = "был в сети: " + TimeUtils.getTimeAgo(lastActivity) + " назад";
+                            sendMessage(update.getMessage().getChatId(), message + "Ваш никнейм: " + playername + "\n" + "Статус: " + status);
+                        }
+
+
+                    }else{
+                        sendMessage(update.getMessage().getChatId(), message+"Напишите /reg чтобы зарегистрировать аккаунт.");
+                    }
                 }
                 if (update.getMessage().getText().toString().equals("/reg")) {
                     nextStep.put(update.getMessage().getChatId().toString(), "askplayername");
                     sendMessage(update.getMessage().getChatId(), "Напишите свой никнейм из Minecraft");
+                }
+                if (update.getMessage().getText().toString().equals("/help")) {
+                    sendMessage(update.getMessage().getChatId(), "Если у вас возникли какие-либо проблемы - вы можете обратиться в поддержку написав на этот аккаунт - @mimimiartartart.");
                 }
 
             }
@@ -89,9 +114,9 @@ public class BotTelegram extends TelegramLongPollingBot {
                         }else{
                             if (user != null) {
                                 if (user.chatid.equals(update.getMessage().getChatId())) {
-                                    this.sendMessage(update.getMessage().getChatId(), "Аккаунт уже привязан к вам");
+                                    this.sendMessage(update.getMessage().getChatId(), "Вы не можете привязать больше одного аккаунта.");
                                 } else {
-                                    this.sendMessage(update.getMessage().getChatId(), "Аккаунт уже привязан к другому аккаунту Minecraft");
+                                    this.sendMessage(update.getMessage().getChatId(), "Аккаунт Minecraft уже привязан к другому Telegram");
                                 }
                             } else {
                                 User.register(update.getMessage(), uuid);
@@ -143,6 +168,26 @@ public class BotTelegram extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             System.out.println("Error deleting message: " + e);
         }
+    }
+
+    // Метод для проверки, зарегистрирован ли пользователь
+    private static boolean isUserRegistered(String chatId) {
+        return User.getChatID(chatId);
+    }
+
+    // Метод для получения никнейма игрока по chatId
+    private static String getPlayerNameByChatId(String chatId) {
+        List<User> users = User.getUserList();
+        for (User user : users) {
+            if (user.chatid.toString().equals(chatId)) {
+                return user.playername;
+            }
+        }
+        return null;
+    }
+
+    private Player getPlayerByName(String playerName) {
+        return Bukkit.getPlayer(playerName);
     }
 
 }

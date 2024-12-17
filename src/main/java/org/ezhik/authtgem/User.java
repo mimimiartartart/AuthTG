@@ -33,6 +33,7 @@ public class User {
     public  UUID uuid = null;
     public String playername = "";
     public List<String> friends = new ArrayList<>();
+    public String last_activity = null;
 
     private User(UUID uuid) {
         YamlConfiguration userconfig = new YamlConfiguration();
@@ -49,6 +50,7 @@ public class User {
             this.player = Bukkit.getPlayer(uuid);
             this.active = userconfig.getBoolean("active");
             this.friends = userconfig.getStringList("friends");
+            this.last_activity = userconfig.getString("last_activity");
         } catch (FileNotFoundException e) {
             System.out.println("Error file not found: " + e);
         } catch (IOException e) {
@@ -85,6 +87,7 @@ public class User {
         userconfig.set("firstname", message.getChat().getFirstName());
         userconfig.set("lastname", message.getChat().getLastName());
         userconfig.set("active", false);
+        userconfig.set("last_activity", null);
         try {
             userconfig.save(file);
         } catch (IOException e) {
@@ -159,6 +162,8 @@ public class User {
         }
         return false;
     }
+
+
     public void sendLoginAccepted(String message) {
         InlineKeyboardMarkup keyb = new InlineKeyboardMarkup();
         List<InlineKeyboardButton> colkeyb = new ArrayList<>();
