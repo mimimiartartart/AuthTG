@@ -169,10 +169,10 @@ public class User {
         List<InlineKeyboardButton> colkeyb = new ArrayList<>();
         InlineKeyboardButton yesbtn = new InlineKeyboardButton();
         yesbtn.setText("Да");
-        yesbtn.setCallbackData("ys"+this.player.getName());
+        yesbtn.setCallbackData("ACCEPT_TRUE_REAL"+this.player.getName());
         InlineKeyboardButton nobtn = new InlineKeyboardButton();
         nobtn.setText("Нет");
-        nobtn.setCallbackData("no"+this.player.getName());
+        nobtn.setCallbackData("ACCEPT_FALSE_REAL"+this.player.getName());
         colkeyb.add(yesbtn);
         colkeyb.add(nobtn);
         List<List<InlineKeyboardButton>>keyboard = new ArrayList<>();

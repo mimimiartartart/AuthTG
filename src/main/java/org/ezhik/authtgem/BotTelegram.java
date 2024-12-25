@@ -69,7 +69,7 @@ public class BotTelegram extends TelegramLongPollingBot {
         if (update.hasMessage()) {
             if (update.getMessage().getText().toString().startsWith("/")) {
                 if (update.getMessage().getText().toString().equals("/start")) {
-                    String message = "Добро пожаловать!\n";
+                    String message = "<b>Добро пожаловать!</b>\n";
                     String chatId = update.getMessage().getChatId().toString();
 
                     if (isUserRegistered(chatId)){
@@ -78,27 +78,27 @@ public class BotTelegram extends TelegramLongPollingBot {
 
                         // Если игрок онлайн
                         if (player != null && player.isOnline()) {
-                            String status = "Онлайн";
-                            sendMessage(update.getMessage().getChatId(), message + "Ваш никнейм: " + playername + "\n" + "Статус: " + status);
+                            String status = "<b>Онлайн</b>";
+                            sendMessage(update.getMessage().getChatId(), message + "Ваш никнейм: <b>" + playername + "</b>\n" + "Статус: " + status);
                         } else {
                             // Если игрок не онлайн, показываем время последней активности
                             User user = User.getUser(playername);
                             String lastActivity = user != null ? user.last_activity : null;
-                            String status = "был в сети: " + TimeUtils.getTimeAgo(lastActivity) + " назад";
-                            sendMessage(update.getMessage().getChatId(), message + "Ваш никнейм: " + playername + "\n" + "Статус: " + status);
+                            String status = "<b>был в сети: " + TimeUtils.getTimeAgo(lastActivity) + " назад</b>";
+                            sendMessage(update.getMessage().getChatId(), message + "Ваш никнейм: <b>" + playername + "</b>\n" + "Статус: " + status);
                         }
 
 
                     }else{
-                        sendMessage(update.getMessage().getChatId(), message+"Напишите /reg чтобы зарегистрировать аккаунт.");
+                        sendMessage(update.getMessage().getChatId(), message+"<b>Напишите /reg чтобы зарегистрировать аккаунт.</b>");
                     }
                 }
                 if (update.getMessage().getText().toString().equals("/reg")) {
                     nextStep.put(update.getMessage().getChatId().toString(), "askplayername");
-                    sendMessage(update.getMessage().getChatId(), "Напишите свой никнейм из Minecraft");
+                    sendMessage(update.getMessage().getChatId(), "Напишите свой никнейм из <b>Minecraft</b>");
                 }
                 if (update.getMessage().getText().toString().equals("/help")) {
-                    sendMessage(update.getMessage().getChatId(), "Если у вас возникли какие-либо проблемы - вы можете обратиться в поддержку написав на этот аккаунт - @mimimiartartart.");
+                    sendMessage(update.getMessage().getChatId(), "Если у вас возникли какие-либо проблемы, вы можете обратиться в поддержку написав в комментарии канала - <b>@StillWaterCraft</b>.");
                 }
 
             }
@@ -106,20 +106,25 @@ public class BotTelegram extends TelegramLongPollingBot {
                 if (nextStep.get(update.getMessage().getChatId().toString()).equals("askplayername")) {
                     if (User.isNickname(update.getMessage().getText().toString())) {
                         Player player = Bukkit.getPlayer(update.getMessage().getText().toString());
+                        if (player == null) {
+                            sendMessage(update.getMessage().getChatId(), "<b>Игрок с таким именем не найден на сервере.</b> Убедитесь, что имя введено правильно.");
+                            return;
+                        }
                         UUID uuid = player.getUniqueId();
                         User user = User.getUser(uuid);
-                        sendMessage(update.getMessage().getChatId(), "Ожидайте... Выполняется проверка...");
+                        sendMessage(update.getMessage().getChatId(), "<b>Ожидайте... Выполняется проверка...</b>");
                         if (User.getChatID(update.getMessage().getChatId().toString())) {
-                            sendMessage(update.getMessage().getChatId(), "Вы уже привязали аккаунт к Telegram");
+                            sendMessage(update.getMessage().getChatId(), "<b>Вы уже привязали аккаунт к Telegram</b>");
                         }else{
                             if (user != null) {
                                 if (user.chatid.equals(update.getMessage().getChatId())) {
-                                    this.sendMessage(update.getMessage().getChatId(), "Вы не можете привязать больше одного аккаунта.");
+                                    this.sendMessage(update.getMessage().getChatId(), "<b>Вы не можете привязать больше одного аккаунта.</b>");
                                 } else {
-                                    this.sendMessage(update.getMessage().getChatId(), "Аккаунт Minecraft уже привязан к другому Telegram");
+                                    this.sendMessage(update.getMessage().getChatId(), "<b>Аккаунт Minecraft уже привязан к другому Telegram</b>");
                                 }
                             } else {
                                 User.register(update.getMessage(), uuid);
+                                sendMessage(update.getMessage().getChatId(), "<b>Аккаунт успешно привязан!</b>");
                             }
                         }
                     }
@@ -127,25 +132,26 @@ public class BotTelegram extends TelegramLongPollingBot {
             }
         }
         if (update.hasCallbackQuery()) {
-            if (update.getCallbackQuery().getData().toString().startsWith("ys")) {
-                String playername = update.getCallbackQuery().getData().toString().replace("ys", "");
+            if (update.getCallbackQuery().getData().toString().startsWith("ACCEPT_TRUE_REAL")) {
+                String playername = update.getCallbackQuery().getData().toString().replace("ACCEPT_TRUE_REAL", "");
                 FreezerEvent.unfreezeplayer(playername);
                 MuterEvent.unmute(playername);
+                System.out.println(playername);
                 Player player = Bukkit.getPlayer(playername);
                 player.resetTitle();
                 Long ChatId1 = update.getCallbackQuery().getMessage().getChatId();
                 this.deleteMessage(update.getCallbackQuery().getMessage());
 
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&b&lAuthTG&f&l] &a&lУспешный вход в аккаунт"));
-                sendMessage(ChatId1, "Успешный вход в аккаунт");
+                sendMessage(ChatId1, "<b>Успешный вход в аккаунт</b>");
 
             }
-            if (update.getCallbackQuery().getData().toString().startsWith("no")) {
-                String playername = update.getCallbackQuery().getData().toString().replace("no", "");
+            if (update.getCallbackQuery().getData().toString().startsWith("ACCEPT_FALSE_REAL")) {
+                String playername = update.getCallbackQuery().getData().toString().replace("ACCEPT_FALSE_REAL", "");
                 Handler.kick(playername, ChatColor.translateAlternateColorCodes('&', "Вы были кикнуты через Telegram"));
                 Long ChatId1 = update.getCallbackQuery().getMessage().getChatId();
                 this.deleteMessage(update.getCallbackQuery().getMessage());
-                sendMessage(ChatId1, "Вход отклонен");
+                sendMessage(ChatId1, "<b>Вход отклонен</b>");
             }
         }
     }
@@ -153,6 +159,7 @@ public class BotTelegram extends TelegramLongPollingBot {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(Chatid);
         sendMessage.setText(message);
+        sendMessage.setParseMode("HTML");
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
