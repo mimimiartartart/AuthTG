@@ -11,34 +11,39 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.bukkit.Bukkit;
 
 public class OnQuitEvent implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         if (!FreezerEvent.isFreeze(event.getPlayer())) {
-            String ip = event.getPlayer().getAddress().getAddress().getHostAddress();
-            IPManager.addIP(ip);
+            if (!Bukkit.hasWhitelist()) {
 
-            // Получаем пользователя
-            User user = User.getUser(event.getPlayer().getUniqueId());
-            if (user != null) {
-                // Получаем текущее время в формате yyyy-MM-dd HH:mm
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-                String lastActivity = sdf.format(new Date());
 
-                // Загружаем файл пользователя
-                File file = new File("plugins/Minetelegram/users/" + user.uuid + ".yml");
-                YamlConfiguration userconfig = YamlConfiguration.loadConfiguration(file);
+                String ip = event.getPlayer().getAddress().getAddress().getHostAddress();
+                IPManager.addIP(ip);
 
-                // Сохраняем время последней активности
-                userconfig.set("last_activity", lastActivity);
+                // Получаем пользователя
+                User user = User.getUser(event.getPlayer().getUniqueId());
+                if (user != null) {
+                    // Получаем текущее время в формате yyyy-MM-dd HH:mm
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+                    String lastActivity = sdf.format(new Date());
 
-                // Сохраняем изменения в файл
-                try {
-                    userconfig.save(file);
-                } catch (IOException e) {
-                    System.out.println("Error saving config file: " + e);
+                    // Загружаем файл пользователя
+                    File file = new File("plugins/Minetelegram/users/" + user.uuid + ".yml");
+                    YamlConfiguration userconfig = YamlConfiguration.loadConfiguration(file);
+
+                    // Сохраняем время последней активности
+                    userconfig.set("last_activity", lastActivity);
+
+                    // Сохраняем изменения в файл
+                    try {
+                        userconfig.save(file);
+                    } catch (IOException e) {
+                        System.out.println("Error saving config file: " + e);
+                    }
                 }
             }
         }

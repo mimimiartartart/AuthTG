@@ -37,7 +37,7 @@ public class CodeCMD implements CommandExecutor {
                 }
                 userconf.set("active", true);
                 code.remove(player.getUniqueId());
-                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&b&lAuthTG&f&l] &a&lУспешная привязка аккаунта"));
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&b&lAuthTG&f&l] &a&lУспешная привязка аккаунта!"));
                 try {
                     userconf.save(file);
                 } catch (IOException e) {

@@ -95,7 +95,7 @@ public class BotTelegram extends TelegramLongPollingBot {
                 }
                 if (update.getMessage().getText().toString().equals("/reg")) {
                     nextStep.put(update.getMessage().getChatId().toString(), "askplayername");
-                    sendMessage(update.getMessage().getChatId(), "Напишите свой никнейм из <b>Minecraft</b>");
+                    sendMessage(update.getMessage().getChatId(), "Зайдите на сервер, после чего напишите свой никнейм из <b>Minecraft</b>");
                 }
                 if (update.getMessage().getText().toString().equals("/help")) {
                     sendMessage(update.getMessage().getChatId(), "Если у вас возникли какие-либо проблемы, вы можете обратиться в поддержку написав в комментарии канала - <b>@StillWaterCraft</b>.");
@@ -148,7 +148,7 @@ public class BotTelegram extends TelegramLongPollingBot {
             }
             if (update.getCallbackQuery().getData().toString().startsWith("ACCEPT_FALSE_REAL")) {
                 String playername = update.getCallbackQuery().getData().toString().replace("ACCEPT_FALSE_REAL", "");
-                Handler.kick(playername, ChatColor.translateAlternateColorCodes('&', "Вы были кикнуты через Telegram"));
+                Handler.kick(playername, ChatColor.translateAlternateColorCodes('&', "Вы отклонили запрос на вход."));
                 Long ChatId1 = update.getCallbackQuery().getMessage().getChatId();
                 this.deleteMessage(update.getCallbackQuery().getMessage());
                 sendMessage(ChatId1, "<b>Вход отклонен</b>");

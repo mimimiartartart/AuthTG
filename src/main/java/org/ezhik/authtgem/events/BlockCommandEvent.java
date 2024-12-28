@@ -15,7 +15,7 @@ public class BlockCommandEvent implements Listener {
         if(MuterEvent.isMute(player)) {
            if(!(event.getMessage().startsWith("/code"))) {
                event.setCancelled(true);
-               player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&b&lMT&f&l] &c&lСначала привяжите аккаунт к Telegram"));
+               player.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&b&lAuthTG&f&l] &a&lСначала привяжите аккаунт к Telegram"));
            }
         }
     }
