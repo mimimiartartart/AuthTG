@@ -5,6 +5,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.ezhik.authtgem.IPManager;
+import org.ezhik.authtgem.LoginManager;
 import org.ezhik.authtgem.User;
 
 import java.io.File;
@@ -19,10 +20,14 @@ public class OnQuitEvent implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         if (!FreezerEvent.isFreeze(event.getPlayer())) {
             if (!Bukkit.hasWhitelist()) {
-
-
-                String ip = event.getPlayer().getAddress().getAddress().getHostAddress();
-                IPManager.addIP(ip);
+                if (LoginManager.isRecentLogged(event.getPlayer().getName())) {
+                    System.out.println(event.getPlayer().getName()+ " leaveNOIP");
+                    LoginManager.clearLogged(event.getPlayer().getName());
+                } else {
+                    System.out.println(event.getPlayer().getName()+ " leaveIP");
+                    String ip = event.getPlayer().getAddress().getAddress().getHostAddress();
+                    IPManager.addIP(ip);
+                }
 
                 // Получаем пользователя
                 User user = User.getUser(event.getPlayer().getUniqueId());

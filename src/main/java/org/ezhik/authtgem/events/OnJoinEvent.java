@@ -4,10 +4,12 @@ import org.bukkit.ChatColor;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventException;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.ezhik.authtgem.AuthTGEM;
+import org.ezhik.authtgem.LoginManager;
 import org.ezhik.authtgem.User;
 import org.ezhik.authtgem.IPManager;
 
@@ -24,55 +26,35 @@ import com.google.gson.JsonParser;
 public class OnJoinEvent implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        Player p = event.getPlayer();
-        String ip = p.getAddress().getAddress().getHostAddress();
-        // Проверяем, если IP был использован в течение последних 15 минут
-        if (IPManager.isRecent(ip)) {
-            // Снимаем ограничения (разморозка игрока)
-            FreezerEvent.unfreezeplayer(p.getName());
-            MuterEvent.unmute(p.getName());
-            p.sendMessage(ChatColor.translateAlternateColorCodes('&',"&f&l[&b&lAuthTG&f&l] &a&lВы повторно подключились с того же IP. Повторная авторизация не требуется."));
-            return; // Пропускаем дальнейшую авторизацию
-        }
-        YamlConfiguration userconfig = new YamlConfiguration();
-        File file = new File("plugins/Minetelegram/users/" + p.getUniqueId() + ".yml");
-        FreezerEvent.freezeplayer(p.getName());
-        if (!file.exists()) {
-            MuterEvent.mute(p.getName(), ChatColor.translateAlternateColorCodes('&', "&a&lПривяжите аккаунт к Telegram"));
-            p.sendTitle(ChatColor.translateAlternateColorCodes('&', "&f&lПривяжите аккаунт"), "к Telegram", 20, 10000000, 0);
-            try {
-                userconfig.load(file);
-            } catch (IOException e) {
-                System.out.println("Error loading config file: " + e);
-            } catch (InvalidConfigurationException e) {
-                System.out.println("Error parsing config file: " + e);
-            }
-            userconfig.set("playername", p.getName());
-            userconfig.set("ChatID", null);
-            try {
-                userconfig.save(file);
-            } catch (IOException e) {
-                System.out.println("Error saving config file: " + e);
-            }
-        }
-        else {
-            try {
-                userconfig.load(file);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            } catch (InvalidConfigurationException e) {
-                throw new RuntimeException(e);
-            }
-            if (userconfig.getBoolean("active")) {
-                MuterEvent.mute(p.getName(), ChatColor.translateAlternateColorCodes('&', "&a&lПотвердите вход через Telegram"));
-                p.sendTitle(ChatColor.translateAlternateColorCodes('&', "&f&lПотвердите вход"), "через Telegram", 20, 10000000, 0);
+        try {
+            Player p = event.getPlayer();
 
+
+            String ip = p.getAddress().getAddress().getHostAddress();
+            // Проверяем, если IP был использован в течение последних 15 минут
+            if (IPManager.isRecent(ip)) {
+                // Снимаем ограничения (разморозка игрока)
+                FreezerEvent.unfreezeplayer(p.getName());
+                MuterEvent.unmute(p.getName());
+                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&b&lAuthTG&f&l] &a&lВы повторно подключились с того же IP. Повторная авторизация не требуется."));
+                return; // Пропускаем дальнейшую авторизацию
+            }
+            if (LoginManager.isRecent(p.getName())) {
+                FreezerEvent.unfreezeplayer(p.getName());
+                MuterEvent.unmute(p.getName());
+                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&f&l[&b&lAuthTG&f&l] &a&lВы подтвердили вход в боте. Авторизация не требуется."));
                 User user = User.getUser(p.getUniqueId());
                 String UserIP = event.getPlayer().getAddress().getAddress().getHostAddress();
 
                 String geoLocation = getGeoLocation(UserIP);
-                user.sendLoginAccepted("На ваш аккаунт зашли. IP адрес - " + UserIP + " " + geoLocation + " \nЭто были вы?");
-            } else {
+                user.sendLoginQuestion("Вы зашли на аккаунт. IP адрес - " + UserIP + " " + geoLocation + " \nЕсли это были не вы, нажмите кнопку ниже.");
+                LoginManager.clearLogin(p.getName());
+                return;
+            }
+            YamlConfiguration userconfig = new YamlConfiguration();
+            File file = new File("plugins/Minetelegram/users/" + p.getUniqueId() + ".yml");
+            FreezerEvent.freezeplayer(p.getName());
+            if (!file.exists()) {
                 MuterEvent.mute(p.getName(), ChatColor.translateAlternateColorCodes('&', "&a&lПривяжите аккаунт к Telegram"));
                 p.sendTitle(ChatColor.translateAlternateColorCodes('&', "&f&lПривяжите аккаунт"), "к Telegram", 20, 10000000, 0);
                 try {
@@ -83,13 +65,50 @@ public class OnJoinEvent implements Listener {
                     System.out.println("Error parsing config file: " + e);
                 }
                 userconfig.set("playername", p.getName());
+                userconfig.set("ChatID", null);
                 try {
                     userconfig.save(file);
                 } catch (IOException e) {
                     System.out.println("Error saving config file: " + e);
                 }
+            } else {
+                try {
+                    userconfig.load(file);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } catch (InvalidConfigurationException e) {
+                    throw new RuntimeException(e);
+                }
+                if (userconfig.getBoolean("active")) {
+                    MuterEvent.mute(p.getName(), ChatColor.translateAlternateColorCodes('&', "&a&lПодтвердите вход через Telegram"));
+                    p.sendTitle(ChatColor.translateAlternateColorCodes('&', "&f&lПодтвердите вход"), "через Telegram", 20, 10000000, 0);
 
+                    User user = User.getUser(p.getUniqueId());
+                    String UserIP = event.getPlayer().getAddress().getAddress().getHostAddress();
+
+                    String geoLocation = getGeoLocation(UserIP);
+                    user.sendLoginAccepted("На ваш аккаунт зашли. IP адрес - " + UserIP + " " + geoLocation + " \nЭто были вы?");
+                } else {
+                    MuterEvent.mute(p.getName(), ChatColor.translateAlternateColorCodes('&', "&a&lПривяжите аккаунт к Telegram"));
+                    p.sendTitle(ChatColor.translateAlternateColorCodes('&', "&f&lПривяжите аккаунт"), "к Telegram", 20, 10000000, 0);
+                    try {
+                        userconfig.load(file);
+                    } catch (IOException e) {
+                        System.out.println("Error loading config file: " + e);
+                    } catch (InvalidConfigurationException e) {
+                        System.out.println("Error parsing config file: " + e);
+                    }
+                    userconfig.set("playername", p.getName());
+                    try {
+                        userconfig.save(file);
+                    } catch (IOException e) {
+                        System.out.println("Error saving config file: " + e);
+                    }
+
+                }
             }
+        } catch (Exception e){
+            System.out.println("AuthTG err OnJoin");
         }
 
 

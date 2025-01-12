@@ -2,6 +2,7 @@ package org.ezhik.authtgem;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.Sound;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -99,6 +100,32 @@ public class BotTelegram extends TelegramLongPollingBot {
                 }
                 if (update.getMessage().getText().toString().equals("/help")) {
                     sendMessage(update.getMessage().getChatId(), "Если у вас возникли какие-либо проблемы, вы можете обратиться в поддержку написав в комментарии канала - <b>@StillWaterCraft</b>.");
+                }
+                if (update.getMessage().getText().toString().equals("/login")){
+                    String chatId = update.getMessage().getChatId().toString();
+                    if (isUserRegistered(chatId)){
+                        String playername = getPlayerNameByChatId(chatId);
+                        Player onlinePlayer = Bukkit.getPlayer(playername);
+                        if (onlinePlayer != null && onlinePlayer.isOnline()){
+                            sendMessage(update.getMessage().getChatId(), "<b>Вы уже на сервере!</b>");
+                            return;
+                        }
+                        OfflinePlayer player = Bukkit.getOfflinePlayer(playername);
+                        if (player.isOp()){
+                            sendMessage(update.getMessage().getChatId(), "<b>Эта функция отключена для операторов в качестве безопасности.</b>");
+                            return;
+                        }
+                        System.out.println("4");
+
+                        System.out.println("5");
+                        LoginManager.addToLogin(playername);
+                        sendMessage(update.getMessage().getChatId(), "<b>Готово! В течении 5 минут вы можете зайти в игру без подтверждения.</b>");
+
+                    } else{
+                        sendMessage(update.getMessage().getChatId(), "<b>Сначала зарегистрируйтесь через /reg</b>");
+                        return;
+                    }
+
                 }
 
             }

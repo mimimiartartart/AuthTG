@@ -34,6 +34,7 @@ public class User {
     public String playername = "";
     public List<String> friends = new ArrayList<>();
     public String last_activity = null;
+    public Boolean op = false;
 
     private User(UUID uuid) {
         YamlConfiguration userconfig = new YamlConfiguration();
@@ -51,6 +52,7 @@ public class User {
             this.active = userconfig.getBoolean("active");
             this.friends = userconfig.getStringList("friends");
             this.last_activity = userconfig.getString("last_activity");
+            this.op = userconfig.getBoolean("op");
         } catch (FileNotFoundException e) {
             System.out.println("Error file not found: " + e);
         } catch (IOException e) {
@@ -88,6 +90,7 @@ public class User {
         userconfig.set("lastname", message.getChat().getLastName());
         userconfig.set("active", false);
         userconfig.set("last_activity", null);
+        userconfig.set("op", false);
         try {
             userconfig.save(file);
         } catch (IOException e) {
@@ -134,7 +137,6 @@ public class User {
         File folder = new File("plugins/Minetelegram/users");
         File[] listOfFiles = folder.listFiles();
         for (File file : listOfFiles) {
-            System.out.println(file.getName());
             if (file.isFile()) {
                 UUID uuid = UUID.fromString(file.getName().replace(".yml", ""));
                 User user = new User(uuid);
@@ -148,8 +150,7 @@ public class User {
     public static boolean getChatID(String chatId) {
         File folder = new File("plugins/Minetelegram/users");
         File[] listOfFiles = folder.listFiles();
-        for (File file : listOfFiles) {
-            System.out.println(file.getName());
+        for (File file : listOfFiles) {;
             try {
                 String content = Files.readString(file.toPath());
                 if (content.contains(chatId)) {
@@ -174,6 +175,28 @@ public class User {
         nobtn.setText("Нет");
         nobtn.setCallbackData("ACCEPT_FALSE_REAL"+this.player.getName());
         colkeyb.add(yesbtn);
+        colkeyb.add(nobtn);
+        List<List<InlineKeyboardButton>>keyboard = new ArrayList<>();
+        keyboard.add(colkeyb);
+        keyb.setKeyboard(keyboard);
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(this.chatid);
+        sendMessage.setText(message);
+        sendMessage.setReplyMarkup(keyb);
+        try {
+            AuthTGEM.bot.execute(sendMessage);
+        } catch (TelegramApiException e) {
+            System.out.println("Error sending message: " + e);
+        }
+
+    }
+
+    public void sendLoginQuestion(String message) {
+        InlineKeyboardMarkup keyb = new InlineKeyboardMarkup();
+        List<InlineKeyboardButton> colkeyb = new ArrayList<>();
+        InlineKeyboardButton nobtn = new InlineKeyboardButton();
+        nobtn.setText("Это был не я");
+        nobtn.setCallbackData("ACCEPT_FALSE_REAL"+this.player.getName());
         colkeyb.add(nobtn);
         List<List<InlineKeyboardButton>>keyboard = new ArrayList<>();
         keyboard.add(colkeyb);

@@ -45,8 +45,9 @@ public final class AuthTGEM extends JavaPlugin {
             @Override
             public void run() {
                 IPManager.cleanUp();
+                LoginManager.cleanUp();
             }
-        }.runTaskTimer(this, 0L, 6000L); // Очистка каждые 5 минут (6000 тиков)
+        }.runTaskTimer(this, 0L, 1200L); // Очистка каждую минуту (1200 тиков)
 
     }
 
