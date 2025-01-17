@@ -109,7 +109,7 @@ public class OnJoinEvent implements Listener {
             }
         } catch (Exception e){
             System.out.println("AuthTG err OnJoin");
-        }
+        }S
 
 
     }
